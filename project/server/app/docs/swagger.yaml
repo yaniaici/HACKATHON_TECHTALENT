@@ -2,18 +2,136 @@ openapi: 3.0.0
 info:
   title: API Marketplace Tarragona
   version: 1.0.0
-  description: API RESTful para marketplace de alimentación local en Tarragona
+  description: |
+    API RESTful para marketplace de alimentación local en Tarragona con integración de chatbot inteligente y control de stock.
+    
+    ## Características principales:
+    - CRUD completo para usuarios, productos y pedidos
+    - Autenticación básica por email y contraseña
+    - Chatbot inteligente con detección de intenciones
+    - Control de stock en tiempo real
+    - Búsqueda de productos por tipo, origen, nombre y alérgenos
+    - Estadísticas del marketplace en tiempo real
+    - Integración con Ollama (LLM local) para respuestas naturales
+    - Gestión de movimientos de stock y alertas de stock bajo
+
 servers:
   - url: http://localhost:5000
+    description: Servidor de desarrollo
+
+tags:
+  - name: Autenticación
+    description: Endpoints para autenticación de usuarios
+  - name: Usuarios
+    description: Gestión de usuarios del marketplace
+  - name: Productos
+    description: Gestión de productos del marketplace
+  - name: Pedidos
+    description: Gestión de pedidos del marketplace con control de stock
+  - name: Stock
+    description: |
+      Gestión de stock e inventario del marketplace.
+      
+      ## Funcionalidades de stock:
+      - **Consulta de stock**: Ver stock disponible por producto
+      - **Ajustes de stock**: Agregar, reducir o ajustar stock
+      - **Alertas de stock bajo**: Productos con poco inventario
+      - **Historial de movimientos**: Registro completo de transacciones
+      - **Validación de disponibilidad**: Verificar stock antes de comprar
+      - **Movimientos automáticos**: Stock se actualiza automáticamente con pedidos
+  - name: Chatbot
+    description: |
+      Chatbot inteligente con detección automática de intenciones y control de stock.
+      
+      ## Funcionalidades del chatbot:
+      - **Detección automática**: Analiza la pregunta para identificar si es sobre productos, pedidos, stock o estadísticas
+      - **Búsqueda inteligente**: Consulta la base de datos según la intención detectada
+      - **Respuestas naturales**: Usa Ollama (LLM) para redactar respuestas en lenguaje natural
+      - **Datos reales**: Siempre responde con información actualizada del marketplace
+      - **Control de stock**: Incluye información de disponibilidad en las respuestas
+      
+      ## Tipos de preguntas soportadas:
+      - Productos por tipo: "¿Qué productos de fruta tienes?"
+      - Productos por origen: "¿Qué productos son de Tarragona?"
+      - Productos sin alérgenos: "¿Tienes productos sin alérgenos?"
+      - Búsqueda por nombre: "¿Tienes manzanas?"
+      - Stock y disponibilidad: "¿Cuántas manzanas tienes disponibles?"
+      - Productos con stock bajo: "¿Qué productos se están agotando?"
+      - Estadísticas: "¿Cuántos pedidos hay pendientes?"
+      - Creación de pedidos: "Hazme un pedido de 2kg de manzanas"
+
 paths:
+  /login:
+    post:
+      tags:
+        - Autenticación
+      summary: Login de usuario
+      description: Autenticación básica con email y contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - correo
+                - contraseña
+              properties:
+                correo:
+                  type: string
+                  format: email
+                  example: "juan1@correo.com"
+                contraseña:
+                  type: string
+                  example: "123456"
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  correo:
+                    type: string
+                    example: "juan1@correo.com"
+                  rol:
+                    type: string
+                    example: "cliente"
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Credenciales inválidas"
+
   /usuario:
     get:
+      tags:
+        - Usuarios
       summary: Listar usuarios
+      description: Obtiene la lista completa de usuarios registrados
       responses:
         '200':
           description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Usuario'
     post:
+      tags:
+        - Usuarios
       summary: Crear usuario
+      description: Registra un nuevo usuario en el marketplace
       requestBody:
         required: true
         content:
@@ -22,13 +140,27 @@ paths:
               $ref: '#/components/schemas/Usuario'
       responses:
         '201':
-          description: Usuario creado
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 11
+                  correo:
+                    type: string
+                    example: "nuevo@correo.com"
+
   /usuario/{id}:
     put:
+      tags:
+        - Usuarios
       summary: Actualizar usuario
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
@@ -40,21 +172,181 @@ paths:
               $ref: '#/components/schemas/Usuario'
       responses:
         '200':
-          description: Usuario actualizado
+          description: Usuario actualizado exitosamente
     delete:
+      tags:
+        - Usuarios
       summary: Eliminar usuario
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Usuario eliminado
-  /login:
+          description: Usuario eliminado exitosamente
+
+  /producto:
+    get:
+      tags:
+        - Productos
+      summary: Listar productos
+      description: Obtiene la lista completa de productos disponibles con información de stock
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
     post:
-      summary: Login de usuario
+      tags:
+        - Productos
+      summary: Crear producto
+      description: Registra un nuevo producto en el marketplace con stock inicial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Producto'
+      responses:
+        '201':
+          description: Producto creado exitosamente
+
+  /producto/{id}:
+    put:
+      tags:
+        - Productos
+      summary: Actualizar producto
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Producto'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente
+    delete:
+      tags:
+        - Productos
+      summary: Eliminar producto
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto eliminado exitosamente
+
+  /pedido:
+    get:
+      tags:
+        - Pedidos
+      summary: Listar pedidos
+      description: Obtiene la lista completa de pedidos con detalles y validación de stock
+      responses:
+        '200':
+          description: Lista de pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+    post:
+      tags:
+        - Pedidos
+      summary: Crear pedido
+      description: |
+        Crea un nuevo pedido en el marketplace con validación automática de stock.
+        
+        ## Validaciones automáticas:
+        - Verifica stock disponible para cada producto
+        - Actualiza stock automáticamente al crear el pedido
+        - Registra movimientos de stock para historial
+        - Devuelve error si no hay stock suficiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pedido'
+      responses:
+        '201':
+          description: Pedido creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  message:
+                    type: string
+                    example: "Pedido creado correctamente"
+        '400':
+          description: Error de validación o stock insuficiente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Stock insuficiente para el producto ID 1. Disponible: 5, Solicitado: 10"
+
+  /pedido/{id}:
+    get:
+      tags:
+        - Pedidos
+      summary: Obtener pedido por ID
+      description: Obtiene un pedido específico con todos sus detalles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pedido encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: Pedido no encontrado
+    put:
+      tags:
+        - Pedidos
+      summary: Actualizar pedido
+      description: |
+        Actualiza un pedido existente. Si se cancela, devuelve automáticamente el stock.
+        
+        ## Comportamiento automático:
+        - Al cambiar estado a 'cancelado': devuelve stock automáticamente
+        - Al reactivar pedido cancelado: verifica stock disponible
+        - Registra movimientos de stock correspondientes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -62,153 +354,878 @@ paths:
             schema:
               type: object
               properties:
-                correo:
+                destino:
                   type: string
-                contraseña:
+                  example: "Calle Nueva 123"
+                estado:
                   type: string
+                  enum: [pendiente, enviado, entregado, cancelado]
+                  example: "enviado"
       responses:
         '200':
-          description: Login exitoso
-        '401':
-          description: Credenciales inválidas
-  /producto:
-    get:
-      summary: Listar productos
-      responses:
-        '200':
-          description: Lista de productos
-    post:
-      summary: Crear producto
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Producto'
-      responses:
-        '201':
-          description: Producto creado
-  /producto/{id}:
-    put:
-      summary: Actualizar producto
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Producto'
-      responses:
-        '200':
-          description: Producto actualizado
+          description: Pedido actualizado exitosamente
+        '400':
+          description: Error de validación
     delete:
-      summary: Eliminar producto
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Producto eliminado
-  /pedido:
-    get:
-      summary: Listar pedidos
-      responses:
-        '200':
-          description: Lista de pedidos
-    post:
-      summary: Crear pedido
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pedido'
-      responses:
-        '201':
-          description: Pedido creado
-  /pedido/{id}:
-    put:
-      summary: Actualizar pedido
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pedido'
-      responses:
-        '200':
-          description: Pedido actualizado
-    delete:
+      tags:
+        - Pedidos
       summary: Eliminar pedido
+      description: |
+        Elimina un pedido y devuelve automáticamente el stock a los productos.
+        
+        ## Comportamiento automático:
+        - Devuelve stock de todos los productos del pedido
+        - Registra movimientos de devolución
+        - Elimina detalles del pedido
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Pedido eliminado
+          description: Pedido eliminado exitosamente
+
+  /stock/producto/{producto_id}:
+    get:
+      tags:
+        - Stock
+      summary: Obtener stock de un producto
+      description: Obtiene información detallada del stock de un producto específico
+      parameters:
+        - name: producto_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del producto
+          example: 1
+      responses:
+        '200':
+          description: Información de stock del producto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: ID del producto
+                  nombre:
+                    type: string
+                    description: Nombre del producto
+                  stock:
+                    type: integer
+                    description: Stock actual disponible
+                  id_vendedor:
+                    type: integer
+                    description: ID del vendedor
+                  vendedor_nombre:
+                    type: string
+                    description: Nombre del vendedor
+        '404':
+          description: Producto no encontrado
+
+  /stock/producto/{producto_id}/ajuste:
+    post:
+      tags:
+        - Stock
+      summary: Ajustar stock de un producto
+      description: |
+        Ajusta el stock de un producto. Permite diferentes tipos de movimientos.
+        
+        ## Tipos de movimiento:
+        - **ajuste**: Establece el stock a un valor específico
+        - **venta**: Reduce el stock (para ventas)
+        - **devolucion**: Aumenta el stock (para devoluciones)
+      parameters:
+        - name: producto_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del producto
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cantidad
+                - tipo_movimiento
+              properties:
+                cantidad:
+                  type: integer
+                  description: Cantidad a ajustar
+                  example: 10
+                tipo_movimiento:
+                  type: string
+                  enum: [ajuste, venta, devolucion]
+                  description: Tipo de movimiento de stock
+                  example: "ajuste"
+                motivo:
+                  type: string
+                  description: Motivo del ajuste (opcional)
+                  example: "Reposición de inventario"
+      responses:
+        '200':
+          description: Stock ajustado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  producto_id:
+                    type: integer
+                  stock_anterior:
+                    type: integer
+                  stock_nuevo:
+                    type: integer
+                  movimiento:
+                    type: string
+        '400':
+          description: Error de validación o stock insuficiente
+
+  /stock/productos/stock-bajo:
+    get:
+      tags:
+        - Stock
+      summary: Obtener productos con stock bajo
+      description: Obtiene productos que tienen stock igual o menor al límite especificado
+      parameters:
+        - name: limite
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Límite de stock para considerar "bajo"
+          example: 5
+      responses:
+        '200':
+          description: Productos con stock bajo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        nombre:
+                          type: string
+                        tipo:
+                          type: string
+                        stock:
+                          type: integer
+                        paradero:
+                          type: string
+                        origen:
+                          type: string
+                        vendedor:
+                          type: string
+                  limite:
+                    type: integer
+                  count:
+                    type: integer
+
+  /stock/movimientos:
+    get:
+      tags:
+        - Stock
+      summary: Obtener historial de movimientos de stock
+      description: Obtiene el historial completo de movimientos de stock para análisis
+      parameters:
+        - name: producto_id
+          in: query
+          schema:
+            type: integer
+          description: Filtrar por producto específico (opcional)
+          example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+          description: Número máximo de movimientos a retornar
+          example: 20
+      responses:
+        '200':
+          description: Historial de movimientos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  movimientos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        id_producto:
+                          type: integer
+                        id_vendedor:
+                          type: integer
+                        id_pedido:
+                          type: integer
+                        cantidad:
+                          type: integer
+                        tipo_movimiento:
+                          type: string
+                          enum: [venta, ajuste, devolucion]
+                        fecha:
+                          type: string
+                          format: date-time
+                        id_usuario:
+                          type: integer
+                        producto_nombre:
+                          type: string
+                        vendedor_nombre:
+                          type: string
+                  count:
+                    type: integer
+
+  /stock/verificar/{producto_id}:
+    get:
+      tags:
+        - Stock
+      summary: Verificar disponibilidad de stock
+      description: Verifica si hay stock suficiente para una cantidad específica
+      parameters:
+        - name: producto_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del producto
+          example: 1
+        - name: cantidad
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Cantidad a verificar
+          example: 5
+      responses:
+        '200':
+          description: Resultado de la verificación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  disponible:
+                    type: boolean
+                    description: True si hay stock suficiente
+                  stock_actual:
+                    type: integer
+                    description: Stock actual del producto
+                  cantidad_solicitada:
+                    type: integer
+                    description: Cantidad que se quiere verificar
+                  stock_restante:
+                    type: integer
+                    description: Stock que quedaría después de la operación
+        '400':
+          description: Error en la verificación
+
+  /chatbot/query:
+    post:
+      tags:
+        - Chatbot
+      summary: Consulta principal del chatbot
+      description: |
+        Endpoint principal del chatbot inteligente. Analiza la pregunta del usuario y responde de forma natural.
+        
+        ## Detección automática de intenciones:
+        - **Productos por tipo**: "fruta", "lácteo", "panadería", "verdura", "aceite", "huevos", "miel", "carne"
+        - **Productos por origen**: "Tarragona", "origen"
+        - **Productos sin alérgenos**: "sin alérgenos", "no alérgenos"
+        - **Búsqueda por nombre**: "manzana", "naranja", "pera", "leche", "pan"
+        - **Stock y disponibilidad**: "stock", "disponible", "cantidad", "cuánto", "hay", "tienes"
+        - **Productos con stock bajo**: "stock bajo", "poco stock", "agotándose"
+        - **Estadísticas**: Preguntas sobre pedidos, usuarios, productos
+        - **Creación de pedidos**: Solicitudes de compra
+        
+        ## Respuesta:
+        - Si detecta productos: incluye lista de productos encontrados + respuesta natural
+        - Si no detecta productos: respuesta general del marketplace
+        - Incluye información de stock en todas las respuestas sobre productos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: Pregunta del usuario en lenguaje natural
+                  example: "¿Cuántas manzanas tienes disponibles?"
+      responses:
+        '200':
+          description: Respuesta del chatbot
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Respuesta con productos encontrados
+                    properties:
+                      productos:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            nombre:
+                              type: string
+                            tipo:
+                              type: string
+                            paradero:
+                              type: string
+                            origen:
+                              type: string
+                            alergenos:
+                              type: string
+                            stock:
+                              type: integer
+                      response:
+                        type: string
+                        description: Respuesta generada por el LLM
+                  - type: object
+                    description: Respuesta general del marketplace
+                    properties:
+                      context:
+                        type: string
+                        description: Contexto del marketplace
+                      query:
+                        type: string
+                        description: Pregunta original del usuario
+                      response:
+                        type: string
+                        description: Respuesta generada por el LLM
+
+  /chatbot/search:
+    get:
+      tags:
+        - Chatbot
+      summary: Búsqueda de productos por nombre
+      description: Busca productos que coincidan con el término de búsqueda
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Término de búsqueda
+          example: "manzana"
+      responses:
+        '200':
+          description: Productos encontrados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  search_term:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        nombre:
+                          type: string
+                        tipo:
+                          type: string
+                        paradero:
+                          type: string
+                        origen:
+                          type: string
+                        alergenos:
+                          type: string
+                        stock:
+                          type: integer
+                  count:
+                    type: integer
+
+  /chatbot/create-order:
+    post:
+      tags:
+        - Chatbot
+      summary: Crear pedido desde el chatbot
+      description: Crea un pedido directamente desde el chatbot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_usuario
+                - id_producto
+                - contenido
+                - destino
+              properties:
+                id_usuario:
+                  type: integer
+                  description: ID del usuario que hace el pedido
+                  example: 1
+                id_producto:
+                  type: integer
+                  description: ID del producto a pedir
+                  example: 12
+                contenido:
+                  type: string
+                  description: Descripción del pedido
+                  example: "2kg de manzanas"
+                destino:
+                  type: string
+                  description: Dirección de entrega
+                  example: "Calle Mayor 1"
+      responses:
+        '201':
+          description: Pedido creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pedido_id:
+                    type: integer
+                  producto_nombre:
+                    type: string
+                  contenido:
+                    type: string
+                  estado:
+                    type: string
+                    example: "pendiente"
+
+  /chatbot/products/{product_type}:
+    get:
+      tags:
+        - Chatbot
+      summary: Obtener productos por tipo
+      description: Obtiene todos los productos de un tipo específico
+      parameters:
+        - name: product_type
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Tipo de producto
+          example: "fruta"
+      responses:
+        '200':
+          description: Productos del tipo especificado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product_type:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        nombre:
+                          type: string
+                        tipo:
+                          type: string
+                        paradero:
+                          type: string
+                        origen:
+                          type: string
+                        stock:
+                          type: integer
+                  count:
+                    type: integer
+
+  /chatbot/products/origin/{origin}:
+    get:
+      tags:
+        - Chatbot
+      summary: Obtener productos por origen
+      description: Obtiene todos los productos de un origen específico
+      parameters:
+        - name: origin
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Origen de los productos
+          example: "Tarragona"
+      responses:
+        '200':
+          description: Productos del origen especificado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  origin:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        nombre:
+                          type: string
+                        tipo:
+                          type: string
+                        paradero:
+                          type: string
+                        origen:
+                          type: string
+                        stock:
+                          type: integer
+                  count:
+                    type: integer
+
+  /chatbot/products/no-allergens:
+    get:
+      tags:
+        - Chatbot
+      summary: Obtener productos sin alérgenos
+      description: Obtiene todos los productos que no tienen alérgenos especificados
+      responses:
+        '200':
+          description: Productos sin alérgenos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        nombre:
+                          type: string
+                        tipo:
+                          type: string
+                        paradero:
+                          type: string
+                        origen:
+                          type: string
+                        stock:
+                          type: integer
+                  count:
+                    type: integer
+
+  /chatbot/orders/{status}:
+    get:
+      tags:
+        - Chatbot
+      summary: Obtener pedidos por estado
+      description: Obtiene todos los pedidos con un estado específico
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Estado de los pedidos
+          example: "pendiente"
+      responses:
+        '200':
+          description: Pedidos del estado especificado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        id_usuario:
+                          type: integer
+                        id_producto:
+                          type: integer
+                        contenido:
+                          type: string
+                        destino:
+                          type: string
+                        estado:
+                          type: string
+                  count:
+                    type: integer
+
+  /chatbot/stats:
+    get:
+      tags:
+        - Chatbot
+      summary: Obtener estadísticas del marketplace
+      description: Obtiene estadísticas completas del marketplace en tiempo real
+      responses:
+        '200':
+          description: Estadísticas del marketplace
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_users:
+                    type: integer
+                    description: Total de usuarios registrados
+                  total_products:
+                    type: integer
+                    description: Total de productos disponibles
+                  total_orders:
+                    type: integer
+                    description: Total de pedidos realizados
+                  orders_by_status:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        estado:
+                          type: string
+                        count:
+                          type: integer
+                    description: Pedidos agrupados por estado
+                  products_by_type:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tipo:
+                          type: string
+                        count:
+                          type: integer
+                    description: Productos agrupados por tipo
+
+  /chatbot/test-connection:
+    get:
+      tags:
+        - Chatbot
+      summary: Probar conexión con Ollama
+      description: Verifica que la conexión con el servidor de Ollama esté funcionando
+      responses:
+        '200':
+          description: Estado de la conexión
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ollama_connection:
+                    type: boolean
+                    description: True si la conexión es exitosa
+                  error:
+                    type: string
+                    description: Mensaje de error si la conexión falla
+
 components:
   schemas:
     Usuario:
       type: object
       properties:
+        id:
+          type: integer
+          description: ID único del usuario
         nombre:
           type: string
+          description: Nombre del usuario
+          example: "Juan"
         apellido1:
           type: string
+          description: Primer apellido
+          example: "Pérez"
         apellido2:
           type: string
+          description: Segundo apellido (opcional)
+          example: "García"
         correo:
           type: string
+          format: email
+          description: Email del usuario
+          example: "juan@correo.com"
         contraseña:
           type: string
+          description: Contraseña encriptada
+          example: "hashed_password"
         direccion:
           type: string
+          description: Dirección del usuario
+          example: "Calle Mayor 1"
         telefono:
           type: string
+          description: Teléfono del usuario
+          example: "600000001"
         rol:
           type: string
+          enum: [cliente, vendedor]
+          description: Rol del usuario en el marketplace
+          example: "cliente"
+      required:
+        - nombre
+        - apellido1
+        - correo
+        - contraseña
+        - direccion
+        - telefono
+        - rol
+
     Producto:
       type: object
       properties:
+        id:
+          type: integer
+          description: ID único del producto
         nombre:
           type: string
+          description: Nombre del producto
+          example: "Manzanas"
         tipo:
           type: string
+          description: Tipo de producto
+          example: "fruta"
         alergenos:
           type: string
+          description: Lista de alérgenos (opcional)
+          example: "A1"
         paradero:
           type: string
+          description: Ubicación del producto
+          example: "Mercado Central"
         origen:
           type: string
+          description: Origen del producto
+          example: "Tarragona"
+        stock:
+          type: integer
+          description: Stock disponible del producto
+          example: 50
         id_vendedor:
           type: integer
+          description: ID del vendedor
+          example: 6
+      required:
+        - nombre
+        - tipo
+        - paradero
+        - origen
+        - stock
+        - id_vendedor
+
     Pedido:
       type: object
       properties:
+        id:
+          type: integer
+          description: ID único del pedido
         id_usuario:
           type: integer
-        id_producto:
-          type: integer
-        contenido:
+          description: ID del usuario que hace el pedido
+          example: 1
+        fecha_pedido:
           type: string
+          format: date-time
+          description: Fecha de creación del pedido
         destino:
           type: string
+          description: Dirección de entrega
+          example: "Calle Mayor 1"
         estado:
-          type: string 
+          type: string
+          enum: [pendiente, enviado, entregado, cancelado]
+          description: Estado actual del pedido
+          example: "pendiente"
+        detalles:
+          type: array
+          description: Lista de productos y cantidades del pedido
+          items:
+            type: object
+            properties:
+              id_producto:
+                type: integer
+                description: ID del producto
+              cantidad:
+                type: integer
+                description: Cantidad solicitada
+              producto_nombre:
+                type: string
+                description: Nombre del producto
+              tipo:
+                type: string
+                description: Tipo del producto
+              stock:
+                type: integer
+                description: Stock actual del producto
+      required:
+        - id_usuario
+        - destino
+        - estado
+        - detalles
+
+    MovimientoStock:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único del movimiento
+        id_producto:
+          type: integer
+          description: ID del producto
+        id_vendedor:
+          type: integer
+          description: ID del vendedor
+        id_pedido:
+          type: integer
+          description: ID del pedido (opcional)
+        cantidad:
+          type: integer
+          description: Cantidad del movimiento
+        tipo_movimiento:
+          type: string
+          enum: [venta, ajuste, devolucion]
+          description: Tipo de movimiento
+        fecha:
+          type: string
+          format: date-time
+          description: Fecha del movimiento
+        id_usuario:
+          type: integer
+          description: ID del usuario (opcional)
+        producto_nombre:
+          type: string
+          description: Nombre del producto
+        vendedor_nombre:
+          type: string
+          description: Nombre del vendedor
+      required:
+        - id_producto
+        - id_vendedor
+        - cantidad
+        - tipo_movimiento 

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from project.server.app.controllers.pedido import (
-    get_pedidos_controller, create_pedido_controller, update_pedido_controller, delete_pedido_controller
+    get_pedidos_controller, create_pedido_controller, update_pedido_controller, 
+    delete_pedido_controller, get_pedido_by_id_controller
 )
 
 pedido_bp = Blueprint('pedido', __name__, url_prefix='/pedido')
@@ -12,6 +13,10 @@ def get_pedidos():
 @pedido_bp.route('', methods=['POST'])
 def create_pedido():
     return create_pedido_controller(request)
+
+@pedido_bp.route('/<int:pedido_id>', methods=['GET'])
+def get_pedido_by_id(pedido_id):
+    return get_pedido_by_id_controller(pedido_id)
 
 @pedido_bp.route('/<int:pedido_id>', methods=['PUT'])
 def update_pedido(pedido_id):

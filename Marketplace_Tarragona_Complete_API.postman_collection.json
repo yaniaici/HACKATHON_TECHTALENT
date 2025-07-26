@@ -1,0 +1,957 @@
+{
+	"info": {
+		"_postman_id": "marketplace-tarragona-complete-api",
+		"name": "Marketplace Tarragona - API Completa",
+		"description": "Colección completa para probar todos los endpoints del marketplace de Tarragona incluyendo CRUD, chatbot y control de stock",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Autenticación",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"correo\": \"juan1@correo.com\",\n  \"contraseña\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "👥 Usuarios - CRUD",
+			"item": [
+				{
+					"name": "Listar usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/usuario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"usuario"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"María\",\n  \"apellido1\": \"García\",\n  \"apellido2\": \"López\",\n  \"correo\": \"maria@correo.com\",\n  \"contraseña\": \"123456\",\n  \"direccion\": \"Calle Nueva 123\",\n  \"telefono\": \"600000011\",\n  \"rol\": \"cliente\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuario",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"usuario"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/usuario/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"usuario",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Actualizar usuario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Actualizado\",\n  \"direccion\": \"Calle Actualizada 456\",\n  \"telefono\": \"600000012\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/usuario/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"usuario",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Eliminar usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/usuario/11",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"usuario",
+								"11"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📦 Productos - CRUD",
+			"item": [
+				{
+					"name": "Listar productos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/producto",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"producto"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear producto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Plátanos\",\n  \"tipo\": \"fruta\",\n  \"alergenos\": \"\",\n  \"paradero\": \"Mercado Central\",\n  \"origen\": \"Canarias\",\n  \"stock\": 25,\n  \"id_vendedor\": 6\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/producto",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"producto"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener producto por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/producto/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"producto",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Actualizar producto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Manzanas Premium\",\n  \"stock\": 75,\n  \"paradero\": \"Mercado Central - Stand A1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/producto/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"producto",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Eliminar producto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/producto/11",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"producto",
+								"11"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🛒 Pedidos - CRUD con Stock",
+			"item": [
+				{
+					"name": "Listar pedidos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pedido",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear pedido con stock válido",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_usuario\": 1,\n  \"destino\": \"Calle Mayor 1\",\n  \"estado\": \"pendiente\",\n  \"detalles\": [\n    {\n      \"id_producto\": 1,\n      \"cantidad\": 2\n    },\n    {\n      \"id_producto\": 3,\n      \"cantidad\": 1\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pedido",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido"
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear pedido con stock insuficiente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_usuario\": 1,\n  \"destino\": \"Calle Mayor 1\",\n  \"estado\": \"pendiente\",\n  \"detalles\": [\n    {\n      \"id_producto\": 1,\n      \"cantidad\": 1000\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pedido",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener pedido por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pedido/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Actualizar pedido - Cambiar estado",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"enviado\",\n  \"destino\": \"Calle Mayor 1, Piso 2\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pedido/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Cancelar pedido (devuelve stock)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"cancelado\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/pedido/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Eliminar pedido (devuelve stock)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pedido/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📊 Gestión de Stock",
+			"item": [
+				{
+					"name": "Ver stock de un producto",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stock/producto/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"producto",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Ajustar stock - Ajuste directo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cantidad\": 100,\n  \"tipo_movimiento\": \"ajuste\",\n  \"motivo\": \"Reposición de inventario\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/stock/producto/1/ajuste",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"producto",
+								"1",
+								"ajuste"
+							]
+						}
+					}
+				},
+				{
+					"name": "Ajustar stock - Venta",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cantidad\": 5,\n  \"tipo_movimiento\": \"venta\",\n  \"motivo\": \"Venta directa\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/stock/producto/1/ajuste",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"producto",
+								"1",
+								"ajuste"
+							]
+						}
+					}
+				},
+				{
+					"name": "Ajustar stock - Devolución",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cantidad\": 3,\n  \"tipo_movimiento\": \"devolucion\",\n  \"motivo\": \"Devolución de cliente\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/stock/producto/1/ajuste",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"producto",
+								"1",
+								"ajuste"
+							]
+						}
+					}
+				},
+				{
+					"name": "Productos con stock bajo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stock/productos/stock-bajo?limite=15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"productos",
+								"stock-bajo"
+							],
+							"query": [
+								{
+									"key": "limite",
+									"value": "15"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Historial de movimientos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stock/movimientos?limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"movimientos"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Verificar disponibilidad de stock",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stock/verificar/1?cantidad=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stock",
+								"verificar",
+								"1"
+							],
+							"query": [
+								{
+									"key": "cantidad",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🤖 Chatbot - Consultas Inteligentes",
+			"item": [
+				{
+					"name": "Consulta principal del chatbot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Cuántas manzanas tienes disponibles?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Preguntar sobre stock disponible",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Cuántas manzanas tienes disponibles?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Preguntar sobre productos con stock bajo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Qué productos se están agotando?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Preguntar sobre disponibilidad",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Tienes leche disponible?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Preguntar sobre productos por tipo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Qué productos de fruta tienes?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Preguntar sobre productos por origen",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Qué productos son de Tarragona?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Preguntar sobre productos sin alérgenos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"¿Tienes productos sin alérgenos?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/query",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"query"
+							]
+						}
+					}
+				},
+				{
+					"name": "Búsqueda de productos por nombre",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/search?q=manzana",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "manzana"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear pedido desde chatbot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_usuario\": 1,\n  \"id_producto\": 1,\n  \"contenido\": \"2kg de manzanas\",\n  \"destino\": \"Calle Mayor 1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chatbot/create-order",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"create-order"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener productos por tipo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/products/fruta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"products",
+								"fruta"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener productos por origen",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/products/origin/Tarragona",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"products",
+								"origin",
+								"Tarragona"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener productos sin alérgenos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/products/no-allergens",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"products",
+								"no-allergens"
+							]
+						}
+					}
+				},
+				{
+					"name": "Obtener pedidos por estado",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/orders/pendiente",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"orders",
+								"pendiente"
+							]
+						}
+					}
+				},
+				{
+					"name": "Estadísticas del marketplace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"stats"
+							]
+						}
+					}
+				},
+				{
+					"name": "Probar conexión con Ollama",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chatbot/test-connection",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chatbot",
+								"test-connection"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerun",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+} 
