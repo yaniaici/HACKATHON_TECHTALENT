@@ -81,6 +81,19 @@ def actualizar_stock_productos(cursor, detalles, operacion='restar'):
                 WHERE id = %s
             """, (detalle['cantidad'], detalle['id_producto']))
 
+def registrar_movimiento_stock(cursor, id_producto, id_vendedor, id_pedido, cantidad, tipo, id_usuario):
+    """Registra un movimiento de stock para métricas de PowerBI"""
+    cursor.execute("""
+        INSERT INTO movimiento_stock (id_producto, id_vendedor, id_pedido, cantidad, tipo_movimiento, id_usuario)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (id_producto, id_vendedor, id_pedido, cantidad, tipo, id_usuario))
+
+def obtener_vendedor_producto(cursor, id_producto):
+    """Obtiene el id_vendedor de un producto"""
+    cursor.execute("SELECT id_vendedor FROM producto WHERE id = %s", (id_producto,))
+    result = cursor.fetchone()
+    return result[0] if result else None
+
 def create_pedido_service(pedido_data):
     db = get_db()
     cursor = db.cursor()
@@ -103,12 +116,28 @@ def create_pedido_service(pedido_data):
         
         pedido_id = cursor.lastrowid
         
-        # 3. Insertar detalles del pedido
+        # 3. Insertar detalles del pedido y registrar movimientos
         for detalle in pedido_data['detalles']:
+            # Insertar detalle del pedido
             cursor.execute("""
                 INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad)
                 VALUES (%s, %s, %s)
             """, (pedido_id, detalle['id_producto'], detalle['cantidad']))
+            
+            # Obtener el vendedor del producto
+            id_vendedor = obtener_vendedor_producto(cursor, detalle['id_producto'])
+            
+            # Registrar el movimiento solo si el estado no es 'cancelado'
+            if pedido_data['estado'] != 'cancelado' and id_vendedor:
+                registrar_movimiento_stock(
+                    cursor, 
+                    detalle['id_producto'], 
+                    id_vendedor, 
+                    pedido_id, 
+                    detalle['cantidad'], 
+                    'venta', 
+                    pedido_data['id_usuario']
+                )
         
         # 4. Actualizar stock (solo si el estado no es 'cancelado')
         if pedido_data['estado'] != 'cancelado':
@@ -140,16 +169,35 @@ def update_pedido_service(pedido_id, pedido_data):
         
         # 2. Obtener detalles actuales del pedido para gestión de stock
         cursor.execute("""
-            SELECT id_producto, cantidad 
-            FROM detalle_pedido 
-            WHERE id_pedido = %s
+            SELECT dp.id_producto, dp.cantidad, p.id_vendedor
+            FROM detalle_pedido dp
+            JOIN producto p ON dp.id_producto = p.id
+            WHERE dp.id_pedido = %s
         """, (pedido_id,))
-        detalles_anteriores = [{'id_producto': row[0], 'cantidad': row[1]} for row in cursor.fetchall()]
+        detalles_anteriores = [
+            {
+                'id_producto': row[0], 
+                'cantidad': row[1], 
+                'id_vendedor': row[2]
+            } for row in cursor.fetchall()
+        ]
         
         # 3. Gestionar cambios de stock según cambio de estado
         if estado_anterior != 'cancelado' and estado_nuevo == 'cancelado':
             # Devolver stock si se cancela el pedido
             actualizar_stock_productos(cursor, detalles_anteriores, 'sumar')
+            # Registrar devolución
+            for detalle in detalles_anteriores:
+                registrar_movimiento_stock(
+                    cursor, 
+                    detalle['id_producto'], 
+                    detalle['id_vendedor'], 
+                    pedido_id, 
+                    detalle['cantidad'], 
+                    'devolucion', 
+                    None  # No hay usuario específico en cancelación
+                )
+                
         elif estado_anterior == 'cancelado' and estado_nuevo != 'cancelado':
             # Verificar y restar stock si se reactiva el pedido
             productos_sin_stock = verificar_stock_disponible(cursor, detalles_anteriores)
@@ -157,6 +205,19 @@ def update_pedido_service(pedido_id, pedido_data):
                 cursor.close()
                 return {'error': f"No se puede reactivar. Stock insuficiente: {', '.join(productos_sin_stock)}"}
             actualizar_stock_productos(cursor, detalles_anteriores, 'restar')
+            # Registrar nueva venta
+            cursor.execute("SELECT id_usuario FROM pedido WHERE id = %s", (pedido_id,))
+            id_usuario = cursor.fetchone()[0]
+            for detalle in detalles_anteriores:
+                registrar_movimiento_stock(
+                    cursor, 
+                    detalle['id_producto'], 
+                    detalle['id_vendedor'], 
+                    pedido_id, 
+                    detalle['cantidad'], 
+                    'venta', 
+                    id_usuario
+                )
         
         # 4. Actualizar campos del pedido
         campos = []
@@ -187,9 +248,10 @@ def delete_pedido_service(pedido_id):
     try:
         # 1. Obtener detalles del pedido y estado antes de eliminar
         cursor.execute("""
-            SELECT p.estado, dp.id_producto, dp.cantidad
+            SELECT p.estado, p.id_usuario, dp.id_producto, dp.cantidad, pr.id_vendedor
             FROM pedido p
             LEFT JOIN detalle_pedido dp ON p.id = dp.id_pedido
+            LEFT JOIN producto pr ON dp.id_producto = pr.id
             WHERE p.id = %s
         """, (pedido_id,))
         
@@ -199,11 +261,29 @@ def delete_pedido_service(pedido_id):
             return {'error': 'Pedido no encontrado'}
         
         estado = results[0][0]
-        detalles = [{'id_producto': row[1], 'cantidad': row[2]} for row in results if row[1]]
+        id_usuario = results[0][1]
+        detalles = [
+            {
+                'id_producto': row[2], 
+                'cantidad': row[3], 
+                'id_vendedor': row[4]
+            } for row in results if row[2]
+        ]
         
         # 2. Devolver stock si el pedido no estaba cancelado
         if estado != 'cancelado' and detalles:
             actualizar_stock_productos(cursor, detalles, 'sumar')
+            # Registrar devolución por eliminación
+            for detalle in detalles:
+                registrar_movimiento_stock(
+                    cursor, 
+                    detalle['id_producto'], 
+                    detalle['id_vendedor'], 
+                    pedido_id, 
+                    detalle['cantidad'], 
+                    'devolucion', 
+                    id_usuario
+                )
         
         # 3. Eliminar pedido (los detalles se eliminan automáticamente por CASCADE)
         cursor.execute("DELETE FROM pedido WHERE id = %s", (pedido_id,))

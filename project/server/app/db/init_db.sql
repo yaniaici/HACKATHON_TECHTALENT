@@ -92,3 +92,18 @@ INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
 (4, 4, 1),  -- Pedido 4: 1 pan
 (5, 5, 1),  -- Pedido 5: 1 queso
 (5, 9, 2);  -- Pedido 5: 2 mieles
+
+CREATE TABLE IF NOT EXISTS movimiento_stock (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto INT NOT NULL,
+    id_vendedor INT NOT NULL,
+    id_pedido INT,
+    cantidad INT NOT NULL,
+    tipo_movimiento ENUM('venta', 'ajuste', 'devolucion') NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_usuario INT, -- quién compró (cliente)
+    FOREIGN KEY (id_producto) REFERENCES producto(id),
+    FOREIGN KEY (id_vendedor) REFERENCES usuario(id),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id)
+);

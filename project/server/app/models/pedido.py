@@ -12,3 +12,5 @@ class PedidoSchema(Schema):
     destino = fields.Str(required=True)
     estado = fields.Str(required=True, validate=validate.OneOf(["pendiente", "enviado", "entregado", "cancelado"]))
     detalles = fields.List(fields.Nested(DetallePedidoSchema), required=True)
+
+    
