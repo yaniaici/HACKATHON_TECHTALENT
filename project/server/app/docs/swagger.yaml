@@ -1,0 +1,214 @@
+openapi: 3.0.0
+info:
+  title: API Marketplace Tarragona
+  version: 1.0.0
+  description: API RESTful para marketplace de alimentación local en Tarragona
+servers:
+  - url: http://localhost:5000
+paths:
+  /usuario:
+    get:
+      summary: Listar usuarios
+      responses:
+        '200':
+          description: Lista de usuarios
+    post:
+      summary: Crear usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: Usuario creado
+  /usuario/{id}:
+    put:
+      summary: Actualizar usuario
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '200':
+          description: Usuario actualizado
+    delete:
+      summary: Eliminar usuario
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuario eliminado
+  /login:
+    post:
+      summary: Login de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                correo:
+                  type: string
+                contraseña:
+                  type: string
+      responses:
+        '200':
+          description: Login exitoso
+        '401':
+          description: Credenciales inválidas
+  /producto:
+    get:
+      summary: Listar productos
+      responses:
+        '200':
+          description: Lista de productos
+    post:
+      summary: Crear producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Producto'
+      responses:
+        '201':
+          description: Producto creado
+  /producto/{id}:
+    put:
+      summary: Actualizar producto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Producto'
+      responses:
+        '200':
+          description: Producto actualizado
+    delete:
+      summary: Eliminar producto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto eliminado
+  /pedido:
+    get:
+      summary: Listar pedidos
+      responses:
+        '200':
+          description: Lista de pedidos
+    post:
+      summary: Crear pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pedido'
+      responses:
+        '201':
+          description: Pedido creado
+  /pedido/{id}:
+    put:
+      summary: Actualizar pedido
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pedido'
+      responses:
+        '200':
+          description: Pedido actualizado
+    delete:
+      summary: Eliminar pedido
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pedido eliminado
+components:
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        nombre:
+          type: string
+        apellido1:
+          type: string
+        apellido2:
+          type: string
+        correo:
+          type: string
+        contraseña:
+          type: string
+        direccion:
+          type: string
+        telefono:
+          type: string
+        rol:
+          type: string
+    Producto:
+      type: object
+      properties:
+        nombre:
+          type: string
+        tipo:
+          type: string
+        alergenos:
+          type: string
+        paradero:
+          type: string
+        origen:
+          type: string
+        id_vendedor:
+          type: integer
+    Pedido:
+      type: object
+      properties:
+        id_usuario:
+          type: integer
+        id_producto:
+          type: integer
+        contenido:
+          type: string
+        destino:
+          type: string
+        estado:
+          type: string 

@@ -1,43 +1,21 @@
 # project/server/config.py
 
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+from dotenv import load_dotenv
 
+load_dotenv()
 
-class BaseConfig(object):
-    """Base configuration."""
-    SECRET_KEY = 'my_precious'
-    DEBUG = False
-    BCRYPT_LOG_ROUNDS = 13
-    WTF_CSRF_ENABLED = True
-    DEBUG_TB_ENABLED = False
-    DEBUG_TB_INTERCEPT_REDIRECTS = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+class Config:
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev')
+    MYSQL_HOST = os.getenv('DB_HOST', 'localhost')
+    MYSQL_USER = os.getenv('DB_USER', 'root')
+    MYSQL_PASSWORD = os.getenv('DB_PASS', '')
+    MYSQL_DB = os.getenv('DB_NAME', 'marketplace')
+    MYSQL_PORT = int(os.getenv('DB_PORT', 3306))
+    BCRYPT_LOG_ROUNDS = 12
 
-
-class DevelopmentConfig(BaseConfig):
-    """Development configuration."""
+class DevelopmentConfig(Config):
     DEBUG = True
-    BCRYPT_LOG_ROUNDS = 4
-    WTF_CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'dev.sqlite')
-    DEBUG_TB_ENABLED = True
 
-
-class TestingConfig(BaseConfig):
-    """Testing configuration."""
-    DEBUG = True
-    TESTING = True
-    BCRYPT_LOG_ROUNDS = 4
-    WTF_CSRF_ENABLED = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///'
-    DEBUG_TB_ENABLED = False
-    PRESERVE_CONTEXT_ON_EXCEPTION = False
-
-
-class ProductionConfig(BaseConfig):
-    """Production configuration."""
-    SECRET_KEY = 'my_precious'
+class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/example'
-    DEBUG_TB_ENABLED = False
