@@ -1,0 +1,8 @@
+flask
+mysql-connector-python
+flask-swagger-ui
+marshmallow
+python-dotenv
+flask-bcrypt
+ollama
+requests
