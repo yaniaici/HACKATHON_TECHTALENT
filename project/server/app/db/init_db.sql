@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     rol ENUM('cliente', 'vendedor') NOT NULL
 );
 
--- Tabla producto
+-- Tabla producto (con stock)
 CREATE TABLE IF NOT EXISTS producto (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -23,23 +23,32 @@ CREATE TABLE IF NOT EXISTS producto (
     alergenos VARCHAR(255),
     paradero VARCHAR(255) NOT NULL,
     origen VARCHAR(255) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
     id_vendedor INT NOT NULL,
     FOREIGN KEY (id_vendedor) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
--- Tabla pedido
+-- Tabla pedido (encabezado del pedido)
 CREATE TABLE IF NOT EXISTS pedido (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
-    id_producto INT NOT NULL,
-    contenido TEXT NOT NULL,
+    fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     destino VARCHAR(255) NOT NULL,
-    estado ENUM('pendiente', 'enviado', 'entregado', 'cancelado') NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id) ON DELETE CASCADE,
+    estado ENUM('pendiente', 'enviado', 'entregado', 'cancelado') NOT NULL DEFAULT 'pendiente',
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id) ON DELETE CASCADE
+);
+
+-- Tabla detalle_pedido (productos y cantidades del pedido)
+CREATE TABLE IF NOT EXISTS detalle_pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id) ON DELETE CASCADE,
     FOREIGN KEY (id_producto) REFERENCES producto(id) ON DELETE CASCADE
 );
 
--- Insertar 10 usuarios de ejemplo (contraseña: '123456' en hash bcrypt)
+-- Insertar usuarios de ejemplo
 INSERT INTO usuario (nombre, apellido1, apellido2, correo, contraseña, direccion, telefono, rol) VALUES
 ('Juan', 'Pérez', 'García', 'juan1@correo.com', '$2b$12$eImiTXuWVxfM37uY4JANjQ==', 'Calle Mayor 1', '600000001', 'cliente'),
 ('Ana', 'López', 'Martínez', 'ana2@correo.com', '$2b$12$eImiTXuWVxfM37uY4JANjQ==', 'Calle Sol 2', '600000002', 'cliente'),
@@ -52,28 +61,49 @@ INSERT INTO usuario (nombre, apellido1, apellido2, correo, contraseña, direccio
 ('David', 'Vega', 'Castro', 'david9@correo.com', '$2b$12$eImiTXuWVxfM37uY4JANjQ==', 'Calle Nube 9', '600000009', 'vendedor'),
 ('Sara', 'Molina', 'Ortega', 'sara10@correo.com', '$2b$12$eImiTXuWVxfM37uY4JANjQ==', 'Calle Flor 10', '600000010', 'vendedor');
 
--- Insertar 10 productos de ejemplo
-INSERT INTO producto (nombre, tipo, alergenos, paradero, origen, id_vendedor) VALUES
-('Manzanas', 'fruta', 'A1', 'Mercado Central', 'Tarragona', 6),
-('Naranjas', 'fruta', 'A2', 'Mercado Central', 'Valencia', 7),
-('Leche', 'lácteo', 'B3', 'Tienda Bio', 'Tarragona', 8),
-('Pan', 'panadería', 'A1,B3', 'Panadería Sol', 'Tarragona', 9),
-('Queso', 'lácteo', 'A2', 'Mercado Central', 'Reus', 10),
-('Tomates', 'verdura', '', 'Mercado Central', 'Tarragona', 6),
-('Aceite', 'aceite', '', 'Tienda Bio', 'Siurana', 7),
-('Huevos', 'huevos', '', 'Mercado Central', 'Tarragona', 8),
-('Miel', 'miel', '', 'Tienda Bio', 'Prades', 9),
-('Pera', 'fruta', 'A1', 'Mercado Central', 'Lleida', 10);
+-- Insertar productos con stock inicial
+INSERT INTO producto (nombre, tipo, alergenos, paradero, origen, stock, id_vendedor) VALUES
+('Manzanas', 'fruta', 'A1', 'Mercado Central', 'Tarragona', 50, 6),
+('Naranjas', 'fruta', 'A2', 'Mercado Central', 'Valencia', 30, 7),
+('Leche', 'lácteo', 'B3', 'Tienda Bio', 'Tarragona', 25, 8),
+('Pan', 'panadería', 'A1,B3', 'Panadería Sol', 'Tarragona', 15, 9),
+('Queso', 'lácteo', 'A2', 'Mercado Central', 'Reus', 8, 10),
+('Tomates', 'verdura', '', 'Mercado Central', 'Tarragona', 40, 6),
+('Aceite', 'aceite', '', 'Tienda Bio', 'Siurana', 12, 7),
+('Huevos', 'huevos', '', 'Mercado Central', 'Tarragona', 60, 8),
+('Miel', 'miel', '', 'Tienda Bio', 'Prades', 18, 9),
+('Pera', 'fruta', 'A1', 'Mercado Central', 'Lleida', 35, 10);
 
--- Insertar 10 pedidos de ejemplo
-INSERT INTO pedido (id_usuario, id_producto, contenido, destino, estado) VALUES
-(1, 1, '2kg de manzanas', 'Calle Mayor 1', 'pendiente'),
-(2, 2, '1kg de naranjas', 'Calle Sol 2', 'enviado'),
-(3, 3, '3L de leche', 'Calle Luna 3', 'entregado'),
-(4, 4, '2 barras de pan', 'Calle Mar 4', 'cancelado'),
-(5, 5, '500g de queso', 'Calle Río 5', 'pendiente'),
-(1, 6, '1kg de tomates', 'Calle Mayor 1', 'pendiente'),
-(2, 7, '1L de aceite', 'Calle Sol 2', 'enviado'),
-(3, 8, '12 huevos', 'Calle Luna 3', 'entregado'),
-(4, 9, '1 tarro de miel', 'Calle Mar 4', 'pendiente'),
-(5, 10, '2kg de peras', 'Calle Río 5', 'pendiente'); 
+-- Insertar pedidos de ejemplo
+INSERT INTO pedido (id_usuario, destino, estado) VALUES
+(1, 'Calle Mayor 1', 'pendiente'),
+(2, 'Calle Sol 2', 'enviado'),
+(3, 'Calle Luna 3', 'entregado'),
+(4, 'Calle Mar 4', 'cancelado'),
+(5, 'Calle Río 5', 'pendiente');
+
+-- Insertar detalles de pedidos (productos y cantidades)
+INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad) VALUES
+(1, 1, 2),  -- Pedido 1: 2 manzanas
+(1, 6, 1),  -- Pedido 1: 1 tomate
+(2, 2, 3),  -- Pedido 2: 3 naranjas
+(3, 3, 2),  -- Pedido 3: 2 leches
+(3, 8, 12), -- Pedido 3: 12 huevos
+(4, 4, 1),  -- Pedido 4: 1 pan
+(5, 5, 1),  -- Pedido 5: 1 queso
+(5, 9, 2);  -- Pedido 5: 2 mieles
+
+CREATE TABLE IF NOT EXISTS movimiento_stock (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto INT NOT NULL,
+    id_vendedor INT NOT NULL,
+    id_pedido INT,
+    cantidad INT NOT NULL,
+    tipo_movimiento ENUM('venta', 'ajuste', 'devolucion') NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_usuario INT, -- quién compró (cliente)
+    FOREIGN KEY (id_producto) REFERENCES producto(id),
+    FOREIGN KEY (id_vendedor) REFERENCES usuario(id),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id)
+);
