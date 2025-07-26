@@ -1,8 +1,11 @@
 from project.server.app import create_app
 from flask_swagger_ui import get_swaggerui_blueprint
 import os
+from flask_cors import CORS
+
 
 app = create_app()
+CORS(app)
 
 # Configuración de Swagger UI
 SWAGGER_URL = '/docs'
