@@ -48,6 +48,13 @@ CREATE TABLE IF NOT EXISTS detalle_pedido (
     FOREIGN KEY (id_producto) REFERENCES producto(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS newsletter_suscriptor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    fecha_suscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    activo BOOLEAN DEFAULT TRUE
+);
+
 -- Insertar usuarios de ejemplo
 INSERT INTO usuario (nombre, apellido1, apellido2, correo, contraseña, direccion, telefono, rol) VALUES
 ('Juan', 'Pérez', 'García', 'juan1@correo.com', '$2b$12$eImiTXuWVxfM37uY4JANjQ==', 'Calle Mayor 1', '600000001', 'cliente'),
