@@ -17,9 +17,6 @@
 
 ## 🟝️ Demo Rápida
 
-### 🎮 Instalación del Proyecto  
-![Instalación del Proyecto](./Prueba%201.gif)
-
 ### 🧭 Navegación Completa de la App  
 ![Demo de la Aplicación](./Prueba%202.gif)
 
