@@ -1,5 +1,5 @@
 # 🏆 Marketplace Tarragona  
-**Ganador del Hackathon TechTalent 2024**
+**Ganador del Hackathon TechTalent 2025**
 
 > 🌿 Plataforma de comercio local impulsada por IA  
 > 🎯 Conecta productores de Tarragona con consumidores  
@@ -7,15 +7,15 @@
 
 ---
 
-## 🚀 ¿Qué es Marketplace Tarragona?
+## 🚀 ¿Qué es MercaTarraco?
 
-**Marketplace Tarragona** es una plataforma digital creada para empoderar a los productores locales de Tarragona. Combina un e-commerce moderno con inteligencia artificial, dashboards interactivos y funcionalidades pensadas tanto para compradores como vendedores.
+**MercaTarraco** es una plataforma digital creada para empoderar a los productores locales de Tarragona. Combina un e-commerce moderno con inteligencia artificial, dashboards interactivos y funcionalidades pensadas tanto para compradores como vendedores.
 
 🎉 **Premiado como el mejor proyecto en el Hackathon TechTalent 2024**
 
 ---
 
-## 🟝️ Demo Rápida
+## 🖱️ Demo Rápida
 
 ### 🧭 Navegación Completa de la App  
 ![Demo de la Aplicación](./Prueba%202.gif)
